@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geoportail</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+    <link rel="stylesheet" href="Leaflet.LinearMeasurement.css" />
+    <script type="text/javascript" src="Leaflet.LinearMeasurement.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-better-filelayer@0.1.1/dist/leaflet.betterfilelayer.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/9/92/Feather-location-map.svg" type="image/svg+xml">
+
+
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Montserrat', sans-serif;
+        }
+        #map {
+            position: absolute;
+            top: 65px; 
+            height: calc(100% - 65px); 
+            width: 100%; 
+            z-index: 0;
+        }
+        .dropdown-container1,
+        .dropdown-container2,
+        .dropdown-container {
+           width: 250px; 
+           margin-left: 0px;
+           margin-right: 0px; 
+           top: 10 px
+        }
+        .leaflet-control-measure-toggle {
+           display: none !important;
+        }
+        .container-fluid {
+          position: relative;
+          top: 20px; 
+          left: 0;
+          right: 0;
+          z-index: 1; 
+        }
+        .legend-header {
+          cursor: pointer; 
+        }
+        .leaflet-control-measure-toggle {
+          z-index: 10000; 
+        }
+        
+        .col-md-auto .dropdown-container {
+          margin-left: -10px; 
+        }
+        .high-z-index {
+         z-index: 1000 !important;
+        }
+
+        .normal-z-index {
+         z-index: 400 !important; 
+        }
+        .custom-popup {
+          pointer-events: none;
+        }
+
+        .my-label{
+            background: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            border: none;
+            box-shadow: none;
+            font-weight: bold;
+            color: whitesmoke;
+            text-shadow: 
+              -0.5px -0.5px 0 black, 
+               0.5px -0.5px 0 black, 
+              -0.5px 0.5px 0 black, 
+               0.5px 0.5px 0 black;
+        }
+        .my-label2{
+            background: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            border: none;
+            box-shadow: none;
+            font-weight: semibold;
+            color: white;
+            text-transform: capitalize;
+            text-shadow: 
+              -0.5px -0.5px 0 black, 
+               0.5px -0.5px 0 #800000, 
+              -0.5px 0.5px 0 black, 
+               0.5px 0.5px 0 #800000;
+        }
+        .my-label3{
+            background: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            border: none;
+            box-shadow: none;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            text-shadow: 
+              -0.5px -0.5px 0 black, 
+               0.5px -0.5px 0 black, 
+              -0.5px 0.5px 0 black, 
+               0.5px 0.5px 0 black;
+        }
+        .leaflet-control-zoom {
+            margin-top: 50px !important ; 
+        }
+        .leaflet-bottom.leaflet-right .leaflet-control-layers-toggle {
+           background-image: url(https://upload.wikimedia.org/wikipedia/commons/e/e9/Tabler-icons_square-toggle.svg);
+           width: 40px;
+           height:40px
+        }
+        .leaflet-top.leaflet-right .legend-toggle-button {
+          height: 25px;
+          display: flex;  
+          justify-content: center;  
+          align-items: center;  
+          cursor: pointer; 
+        }
+        .leaflet-top.leaflet-right .legend-toggle-button img {
+            padding-top: 10px; 
+            max-height: 40px;  
+            max-width: 40px;  
+        }
+        .leaflet-top.leaflet-right {
+           top: 40px;
+           position: relative;
+        }
+        .leaflet-control-layers-toggle {
+          background-size: 30px 20px; 
+          background-repeat: no-repeat;  
+          background-position: center; 
+        }
+        #header-bar {
+           position: relative;
+           top: 10px; 
+           left: 10px; 
+           background-color: #333; 
+           z-index: 1000; 
+           display: flex; 
+           align-items: center; 
+        }
+        .logo {
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            margin-right: 0px; 
+            overflow: hidden;
+            display: flex; 
+            align-items: center; 
+        }
+        .logo img {
+             max-width: 100%; 
+             max-height: 100%; 
+        }
+        .header-text {
+            color: white;
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 19px; 
+            font-weight: bold;
+            background-color: #333;
+            display: flex;
+            font-weight: bold;
+            margin-left: 0 px;
+            margin-right: 70px;
+            display: block;
+        }
+        .navbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          padding: 10px 20px;
+          background-color:#333; 
+          z-index: 1000;
+        }
+        .dropdown-container {
+          margin-left: 20px; 
+        }
+        .header-text-short {
+          display: none;
+        }
+        
+        
+
+        .no-pointer-events {
+         pointer-events: none;
+        }
+        @media only screen and (max-width: 850px) {
+         .dropdown-container {
+           width: 100%;
+           height:fit-content;
+           margin-top: 2px;
+           margin-bottom: 0px; 
+         }
+         .header-text-short {
+            color: white; 
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px; 
+            font-weight: bold;
+            background-color: #333;
+            font-weight: bold;
+            position: absolute;
+            margin-left: 0 px;
+            top: 15px;
+            left: 60px;
+            white-space: nowrap;
+            display: block;
+         }
+         .logo {
+            width: 30px;
+            height: 30px; 
+            border-radius: 50%; 
+            margin-right: 0px; 
+            overflow: hidden;
+            display: flex;
+            align-items: center; 
+            
+        }
+        .header-text {
+            color: white; 
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px; 
+            font-weight: bold;
+            background-color: #333;
+            font-weight: bold;
+            position: absolute;
+            margin-left: 0 px;
+            top: 15px;
+            left: 60px;
+            white-space: nowrap;
+            display: none;
+        }
+        .leaflet-control-zoom {
+            margin-top: 35px !important ; 
+        }
+        .leaflet-top.leaflet-right {
+           top: 27px;
+           position: relative;
+        }
+        .my-label3{
+            background: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 7px;
+            border: none;
+            box-shadow: none;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            text-shadow: 
+              -0.5px -0.5px 0 black, 
+               0.5px -0.5px 0 black, 
+              -0.5px 0.5px 0 black, 
+               0.5px 0.5px 0 black;
+        }
+        #map {
+            position: absolute;
+            top: 168px; 
+            height: calc(100% - 168px);
+            width: 100%; 
+            z-index: 0;
+        }
+        .custom-popup {
+            max-width: 200px;
+        }
+        }
+        .legend-control {
+            background: white;
+            padding: 4px;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        .legend-container {
+           padding: 6px;
+           margin-top: 4px; 
+        }
+
+        .legend-toggle-button {
+           background: transparent;
+           color: #333;
+           border: none;
+           border-radius: 4px;
+           padding: 1px 1px;
+           cursor: pointer;
+        }
+
+        .leaflet-control-hidden {
+           display: none;
+        }
+        .legend-header {
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between; 
+        }
+
+        .legend-header::after {
+           content: '▼'; 
+           font-size: 12px;
+           transition: transform 0.3s ease; 
+        }
+        .legend-header.expanded::after {
+            transform: rotate(180deg); 
+        }
+        #button-container2  {
+         display: flex;
+         justify-content: space-between; 
+         gap: 10px;        
+        }
+        #button-container2 button {
+         font-size: 14px;
+        }
+        .close-button {
+            width: 30px;  
+            padding: 5px 10px; 
+            cursor: pointer; 
+            float: right; 
+        }
+        .leaflet-control-custom {
+         top: 200px;
+         left: 0px;
+         position: absolute !important;
+        }
+        .leaflet-control-custom a {
+            background-image: url('geolocation-icon.png'); 
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            background-size: 18px 18px; 
+        }
+        .leaflet-control-custom2 a {
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            background-size: 24px 24px; 
+        }
+        .leaflet-bar2 .leaflet-control-custom2 {
+          padding: 5px;
+        }
+        #popup {
+                position: absolute; top: 120px; left: 50px; width: 400px; height: 560px; overflow-y: auto ; 
+                z-index: 1000; background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px;
+                user-select: text !important;
+        }
+        #info-popup {
+                display: none; position: fixed; top: 120px; right: 70px; width: 400px; height: auto;
+                 z-index: 100001; border: 3px solid #ccc; background-color: #fff; padding: 5px 10px; border-radius: 8px;
+        }
+        #toggle-popup {
+                position: relative; top: 321px; left: 12px; z-index: 1010; background-color: #f8f9fa; color: black;
+                border: none; border-radius: 3px; width: 30px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); height: 32px; display: flex; justify-content: center; align-items: center; background-image: url('https://upload.wikimedia.org/wikipedia/commons/b/b3/Icon_Information.svg');
+                background-size: 50%;  
+                background-repeat: no-repeat;
+                background-position: center;
+        }
+        #file-upload-popup {
+                display: none; position: fixed; top: 20%; left: 44%; width: 15%; padding: 10px; border-radius: 8px;
+                box-shadow: 0 0 5px rgba(0,0,0,0.5); background: white; z-index: 10002;border: 1px solid #B8A598;
+        }
+        #csv-upload-instructions {
+             display: none; position: fixed; top: 50%; left: 52%;
+             transform: translate(-50%, -50%); width: 20%; background: white; padding: 10px;
+             border: 1px solid #B8A598; border-radius: 8px; z-index: 10003; text-align: center;
+        }
+        label, select, input, button {
+                display: block; font-family: 'Montserrat', sans-serif; width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;font-size: 13px;
+        }
+        button {
+                background-color: #6B6A69; color: white;
+                border: 1px solid #B8A598; border-radius: 5px;
+                font-size: 13px;
+
+        }
+        .editbtn {
+                background-color: transparent; cursor: pointer; border: none; padding: 0;
+                display: inline-block; vertical-align: middle; white-space: nowrap;
+        }
+        #coords-container {
+                display: flex; justify-content: space-between;
+        }
+        #coords-container > div {
+                width: 48%;
+        }
+        #coords-container label, #coords-container input, #coords-container button, #coords-container h3, #coords-container table {
+            font-size: 0.8em;
+        }
+        table {
+                width: 100%; border-collapse: collapse; margin-top: 8px; text-align: left; margin-bottom: 8px;
+        }
+        th, td {
+                border: 1px solid #ddd; vertical-align: middle; height: 24px;
+        }
+        .editbtn img {
+                width: 100%; height: 100%; margin-top: 30%; margin-left: 30%;
+        }
+        th:last-child, td:last-child {
+                width: 14px; vertical-align: middle; white-space: nowrap; margin-top: 10px;
+        }
+        #file-upload-popup button, #info-popup .button-container button {
+                background-color: #6B6A69; color: white; border: 1px solid #B8A598; border-radius: 5px; padding: 8px; cursor: pointer; margin-bottom: 10px; font-size: 14px;
+        }
+        #info-popup .button-container {
+                display: flex; justify-content: flex-end; width: 100%; gap: 8px; height:12%; font-size: 14px;
+        }
+        button, label, select, input {
+                    font-size: 0.9em; 
+        }
+        .leaflet-div-icon {
+         width: 6px; 
+         height: 6px; 
+         background-color: #3388ff;  
+         border-radius: 50%;
+         border: 2px solid white; 
+         box-shadow: 0 0 2px rgba(0, 0, 0, 0.5); 
+        }
+        #button-container {
+         display: flex;
+         justify-content: space-between; 
+         gap: 10px;
+        }
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25%, 75% {
+                transform: translateX(-10px);
+            }
+            50% {
+                transform: translateX(10px);
+            }
+        }
+        .shake {
+            animation: shake 0.96s cubic-bezier(.36,.07,.19,.97) both;
+        }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 650px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.btn-m {
+    display: inline-block;
+    font-weight: 50;
+    color: #212529;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #013B72;
+    border: 1px solid #013B72;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    color: white;
+}
+
+.btn:hover {
+    background-color: #013B72;
+    border-color: #013B72;
+}
+.close-button-m {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 36px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+}
+#openModal {
+    position: fixed;
+    bottom: 0%;
+    left: 45%;
+    padding: 10px 20px;
+    background-color: #013B72;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    width: auto
+}
+
+#openModal:hover {
+    background-color: #013B72;
+}
+            @media screen and (max-width: 850px) {
+                #popup, #info-popup, #file-upload-popup {
+                    width: 70%; 
+                    max-width: 350px;
+                    left: 13%; 
+                    padding: 10px;
+                }
+        
+                #coords-container {
+                    flex-direction: column;
+                }
+                #popup {
+                 height: 400px; overflow-y: scroll;
+                 -webkit-overflow-scrolling: touch; 
+                 top: 210px
+                }
+                #info-popup {
+                   top: 210px;
+                   overflow-y: auto;
+                   -webkit-overflow-scrolling: touch; 
+                }
+
+        
+                #coords-container > div {
+                    width: 100%; 
+                }
+        
+                button, label, select, input {
+                    font-size: 0.8em; 
+                }
+                #button-container2 button  {
+                    font-size: 10px; 
+                }
+                #csv-upload-instructions {
+                    width: 70%;
+                    left: 50%
+                }    
+                #toggle-popup {
+                    top: 408px;
+                }
+                .scroll-container{
+                    max-height: 90%; 
+                    overflow-y: auto;
+                    -webkit-overflow-scrolling: touch; 
+                    padding:0;
+                    z-index: 1000;
+                }
+                .scroll-container2{
+                    overflow-y: auto;
+                    -webkit-overflow-scrolling: touch; 
+                    padding:0
+                }
+                .leaflet-control-custom {
+                    top: 186px;
+                    left: 0px;
+                    position: absolute !important;
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div class="navbar">
+        <a href="https://www.auejsb.ma" target="_blank" class="logo">
+            <img src="AUEJSB.png" alt="Logo">
+        </a>
+        <span class="header-text">Géoportail de l'Agence Urbaine d'El Jadida - Sidi Bennour</span>
+        <span class="header-text-short">Agence Urbaine d'El Jadida - Sidi Bennour</span>
+        <div class="dropdown-container">
+            <select id="provinceDropdown" class="form-select">
+                <option value="" disabled selected>Province</option>
+            </select>
+        </div>
+        <div class="dropdown-container">
+            <select id="communeDropdown" class="form-select">
+                <option value="" disabled selected>Commune</option>
+            </select>
+        </div>
+        <div class="dropdown-container">
+            <select id="codeDuDropdown" class="form-select">
+                <option value="" disabled selected>Document d'Urbanisme</option>
+            </select>
+        </div>
+    </div>
+    
+    <button id="toggle-popup" class="shake" onclick="togglePopup()"></button>
+    <input type="file" id="file-input" accept=".dxf" style="display:none;">
+    <input type="file" id="kml-file-input" accept=".kml" style="display:none;">
+    <input type="file" id="csv-file-input" accept=".csv, .txt" style="display:none;" onchange="handleCSVUpload(event)">
+    <div id="file-upload-popup">
+        <div style="text-align: right; width: auto; float: right;">
+            <button onclick="closeFileUploadPopup()">X</button>
+        </div>
+        <button onclick="openCSVInstructions()">Importer CSV ou Txt</button>
+        <button onclick="triggerFileInput()">Importer DXF</button>
+        <button onclick="document.getElementById('kml-file-input').click()">Importer KML</button>
+    </div>
+    <div id="csv-upload-instructions">
+        <h3 style="font-size: 20px; font-weight: bold;">Structure du fichier csv/txt</h3>
+        <p style="font-size: 14px;">Veuillez vous assurer que votre fichier est structuré comme suit :</p>
+        <pre style="font-size: 14px;">X;Y<br>227000.00;302000.00<br>227100.00;302200.00<br>...</pre>
+        <button onclick="triggerCSVFileInput()">Continuer</button>
+        <button onclick="closeCSVInstructions()">Retour</button>
+    </div>
+    <div id="popup" class="ui-widget-content">
+      <div class="scroll-container"> 
+        <label for="coord-system" style="font-weight: bold;">Système de coordonnées:</label>
+        <select id="coord-system">
+            <option>Lambert Nord Maroc</option>
+        </select>
+        <div id="button-container2" style="display: flex; justify-content: space-between;">
+            <button onclick="openFileUploadPopup()">Importer un fichier</button>
+            <button id="draw-polygon-btn" onclick="enableDrawing()">Dessiner un polygone</button>
+        </div>
+        <div id="coords-container">
+            <div>
+                <label for="x-coord">X:</label>
+                <input id="x-coord" type="number" placeholder="000000.00 (m)">
+            </div>
+            <div>
+                <label for="y-coord">Y:</label>
+                <input id="y-coord" type="number" placeholder="000000.00 (m)">
+            </div>
+        </div>
+        <button onclick="addCoordinate()" style="font-size: 14px;">Ajouter la borne</button>
+        <h3 style="font-size: 16px">Listes des bornes:</h3>
+        <table id="coordinates-table">
+            <tr>
+                <th>N° Bornes</th>
+                <th>X</th>
+                <th>Y</th>
+                <th></th> 
+            </tr>
+        </table>
+        <div id="button-container">
+            <button id="localiserBtn" onclick="drawPolygon()">Localiser</button>
+            <button onclick="clearMap()">Vider</button>
+        </div>        
+        <button id="urban-info-btn" onclick="displayUrbanInfo()" disabled style="color: grey; cursor: not-allowed;">Informations urbanistiques</button>
+      </div>
+    </div>
+    <div id="info-popup" class="ui-widget-content">
+        <button onclick="closeInfoPopup()" class="close-button">X</button>
+        <div id="info-content"></div>
+    </div>
+
+    <div id="usageGuideModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close-button-m">&times;</span>
+            <h2 style="font-weight:bold; font-size: 30px;">Guide d'utilisation du géoportail de l'AUEJSB</h2>
+            <video controls>
+                <source src="Guide géoportail de l'AUEJSB.mp4" type="video/mp4">
+                Votre navigateur ne prend pas en charge la vidéo.
+            </video>
+            <br>
+            <a href="Guide géoportail de l'AUEJSB.pdf" download target="_blank" class="btn-m btn-primary">Télécharger la version PDF</a>
+        </div>
+    </div>
+    <button id="openModal" class="btn-m btn-secondary">Guide d'utilisation</button>
+
+</select>
+
+<script src="EV.geojson"></script>
+<script src="VOIRIE.geojson"></script>
+<script src="EQUIPEMENTS.geojson"></script>
+<script src="LIMITES.geojson"></script>
+<script src="PARKING.geojson"></script>
+<script src="PLACES.geojson"></script>
+<script src="SERVITUDES.geojson"></script>
+<script src="ZONING.geojson"></script>
+<script src="PROVINCES.geojson"></script>
+<script src="COMMUNES.geojson"></script>
+<script src="SDAU.geojson"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+<script type="application/javascript"
+   src="https://unpkg.com/leaflet-better-filelayer@0.1.1/dist/leaflet.betterfilelayer.min.js"
+   crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.2.1/decimal.min.js"></script>
+<script src="dxf-parser.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+
+
+<script type="text/javascript">
+    $(function() {
+            $("#popup").draggable(); 
+        });
+    $(function() {
+            $("#info-popup").draggable(); 
+        });
+     window.onload = function() {
+    document.getElementById("usageGuideModal").style.display = "block";
+    var modal = document.getElementById("usageGuideModal");
+    var closeBtn = document.getElementById("closeModal");
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+}
+document.getElementById("openModal").onclick = function() {
+    document.getElementById("usageGuideModal").style.display = "block";
+}
+
+    // projections
+    proj4.defs("+proj=longlat +datum=WGS84 +no_defs");
+    proj4.defs("EPSG:26191", "++proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +ellps=clrk80ign +towgs84=31,146,47,0,0,0,0 +units=m +no_defs");
+    var map = L.map('map', {
+    attributionControl: false}).setView([0, 0], 2);
+
+    // Base layers
+    var esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri',
+        maxZoom: 18
+    }).addTo(map);
+    var osmLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 22
+    });
+    
+    // Overlay layers
+    var provincesLayer = L.geoJSON(provinces, {
+        style: function(feature) {
+            return {
+                fillColor: 'grey',
+                fillOpacity: 0.1,
+                color: '#800000', 
+                weight: 2.5
+            };
+        },
+        onEachFeature: function(feature, layer) {
+            layer.bindTooltip(feature.properties.NOM, {
+                direction: "center",
+                permanent: true,
+                className: "my-label",
+                offset: [0, 0],
+                opacity: 1
+            });
+        },
+        permanent:true
+    }).addTo(map);
+    
+    var servitudesLayer = L.geoJSON(servitudes, {
+        style: function(feature) {
+            return {
+                fillColor: '#73DFFF',
+                fillOpacity: 0.5,
+                color: 'white', 
+                weight: 0.2
+            };
+        }
+    }, {id: 'servitudesLayer'}) 
+    var sdauLayer = L.geoJSON(sdau, {
+        style: function(feature) {
+            return {
+                fillColor: '#73DFFF',
+                fillOpacity: 0.5,
+                color: 'white', 
+                weight: 0.2
+            };
+        }
+    }) ;
+    var communesLayer = L.geoJSON(communes, {
+     style: function(feature) {
+        return {
+            fillColor: 'transparent',
+            color: 'black', 
+            weight: 0.8
+        };
+    },
+        onEachFeature: function(feature, layer) {
+            layer.bindTooltip(feature.properties.NOM, {
+                direction: "center",
+                permanent: true,
+                className: "my-label2",
+                offset: [0, 0],
+                opacity: 1
+            }); 
+        },
+        permanent: true
+    }).addTo(map);
+    // Overlay layers
+    var evLayer = L.geoJSON(ev, {
+        style: function(feature) {
+            return {
+                fillColor: '#38A800',
+                fillOpacity: 0.4,
+                color: 'white', 
+                weight: 0.2
+            };
+        } 
+    },{id: 'evLayer'})
+    var voirieLayer = L.geoJSON(voirie, {
+        style: function(feature) {
+            return {
+                fillColor: '#1A1A1A',
+                fillOpacity: 0.6,
+                color: 'white', 
+                weight: 0.2
+            };
+        }
+    },{id: 'voirieLayer'})
+    var equipLayer = L.geoJSON(equip, {
+     style: function(feature) {
+        var typeEquip = feature.properties.TYPE_EQUIP;
+        var colorMapping = {
+            'Administration': '#732600',
+            'Cimetière': '#002673',
+            'Culture': '#FFDE3E',
+            'Enseignement': '#A83800',
+            'Intérêt général': 'orange',
+            'Mosquée': 'brown',
+            'Privé': 'red',
+            'Santé publique': 'pink',
+            'Service public': '#6B6BD6',
+            'Sport': '#149ECE'
+        };
+
+        var fillColor = colorMapping[typeEquip] || 'gray'; 
+
+        return {
+            fillColor: fillColor,
+            fillOpacity: 0.6,
+            color: 'white',
+            weight: 0.2
+        };
+     },
+    onEachFeature: function(feature, layer) {
+            layer.bindTooltip(feature.properties.INDICE, {
+                direction: "center",
+                permanent: true,
+                className: "my-label3",
+                offset: [0, 0],
+                opacity: 1
+            });
+        }
+    },{id: 'equipLayer'});
+
+    var parkingLayer = L.geoJSON(parking, {
+        style: function(feature) {
+            return {
+                fillColor: 'red',
+                fillOpacity: 0.2,
+                color: 'white', 
+                weight: 0.2
+            };
+        }
+    }, {id: 'parkingLayer'})
+    var placesLayer = L.geoJSON(places, {
+        style: function(feature) {
+            return {
+                fillColor: 'grey',
+                fillOpacity: 0.6,
+                color: 'white', 
+                weight: 0.2 
+            };
+        }
+    }, {id: 'placesLayer'});
+    var zoningLayer = L.geoJSON(zoning, {
+    style: function(feature) {
+        var nature = feature.properties.Nature; 
+        var zoneStd = feature.properties.ZONE_STD; 
+        var colorMapping = {
+            'ACTIVITÉ ÉCONOMIQUE' : '#FFA77F' ,
+            'EQUIPEMENTS SPORTIFS': '#FFEE65',
+            'HABITAT': '#FFFFFF',
+            'ZONES AGRICOLES ET NATURELLES': '#D1FF73',
+            'ZONES SPÉCIFIQUES' : '#BD7EBE'
+        };
+
+        if (zoneStd === 'Tissus à protéger') {
+            return {
+                fillColor: 'transparent',
+                fillOpacity: 0,
+                color: 'red',
+                dashArray: '5',
+                weight: 2
+            };
+        } else {
+            var fillColor = colorMapping[nature] || 'gray'; 
+
+            return {
+                fillColor: fillColor,
+                fillOpacity: 0.5,
+                color: 'white', 
+                weight: 0.2
+            };
+        }
+    },
+    onEachFeature: function(feature, layer) {
+            layer.bindTooltip(feature.properties.INDICE, {
+                direction: "center",
+                permanent: true,
+                className: "my-label3",
+                offset: [0, 0],
+                opacity: 1
+            });
+        }
+    }, {id: 'zoningLayer'});
+
+    var limiteLayer = L.geoJSON(limite, {
+        style: function(feature) {
+            return {
+                fillColor: 'transparent', 
+                color: 'yellow', 
+                dashArray: '5',
+                weight: 2
+            };
+        },
+        interactive: false
+    })
+  
+    // Event listener for zoomend event
+    map.on('zoomend', function() {
+      var currentZoom = map.getZoom();
+      if (currentZoom > 10) {
+        provincesLayer.eachLayer(function(layer) {
+            layer.unbindTooltip(); 
+        });
+      } else {
+        provincesLayer.eachLayer(function(layer) {
+            layer.bindTooltip(layer.feature.properties.NOM, {
+                direction: "center",
+                permanent: true,
+                className: "my-label",
+                offset: [0, 0],
+                opacity: 1
+            });
+        });
+      }
+    });
+    communesLayer.eachLayer(function(layer) {
+      layer.unbindTooltip(); 
+    });
+
+    map.on('zoomend', function() {
+     var currentZoom = map.getZoom();
+     if (currentZoom > 10) {
+        communesLayer.eachLayer(function(layer) {
+            layer.bindTooltip(layer.feature.properties.NOM, {
+                direction: "center",
+                permanent: true,
+                className: "my-label2",
+                offset: [0, 0],
+                opacity: 1
+            });
+        });
+     } else {
+        communesLayer.eachLayer(function(layer) {
+            layer.unbindTooltip(); 
+        });
+     }
+    });
+    map.on('zoomend', function() {
+      var currentZoom = map.getZoom();
+      if (currentZoom < 15) {
+        zoningLayer.eachLayer(function(layer) {
+            layer.unbindTooltip(); 
+        });
+      } else {
+        zoningLayer.eachLayer(function(layer) {
+            layer.bindTooltip(layer.feature.properties.INDICE, {
+                direction: "center",
+                permanent: true,
+                className: "my-label3",
+                offset: [0, 0],
+                opacity: 1
+            });
+        });
+      }
+    });
+    map.on('zoomend', function() {
+      var currentZoom = map.getZoom();
+      if (currentZoom < 16) {
+        equipLayer.eachLayer(function(layer) {
+            layer.unbindTooltip(); 
+        });
+      } else {
+        equipLayer.eachLayer(function(layer) {
+            layer.bindTooltip(layer.feature.properties.INDICE, {
+                direction: "center",
+                permanent: true,
+                className: "my-label3",
+                offset: [0, 0],
+                opacity: 1
+            });
+        });
+      }
+    });
+    communesLayer.eachLayer(function(layer) {
+      layer.unbindTooltip(); 
+    });
+    var baseMaps = {
+        "Satellite": esriImagery,
+        "Carte": osmLayer
+    };
+
+var baseLayerControl = L.control.layers(baseMaps, null, { position: 'bottomright' }).addTo(map);
+    map.fitBounds(provincesLayer.getBounds());
+
+// Populate the province dropdown
+var provinceDropdown = document.getElementById('provinceDropdown');
+provincesLayer.eachLayer(function(layer) {
+    var option = document.createElement('option');
+    option.value = layer.feature.properties.NOM;
+    option.textContent = layer.feature.properties.NOM;
+    provinceDropdown.appendChild(option);
+});
+
+// Event listener for province dropdown change
+document.getElementById('provinceDropdown').addEventListener('change', function() {
+    var selectedProvince = this.value;
+
+    // Zoom to the selected province
+    var selectedProvinceLayer = provincesLayer.getLayers().find(function(layer) {
+        return layer.feature.properties.NOM.toLowerCase() === selectedProvince.toLowerCase();
+    });
+    map.fitBounds(selectedProvinceLayer.getBounds());
+
+    // Populate the commune dropdown based on the selected province
+    var communeDropdown = document.getElementById('communeDropdown');
+    communeDropdown.innerHTML = '<option value="" disabled selected>Commune</option>';
+    var communeOptions = [];
+    communesLayer.eachLayer(function(layer) {
+        if (layer.feature.properties.Province.toLowerCase() === selectedProvince.toLowerCase()) {
+            communeOptions.push(layer.feature.properties.NOM);
+        }
+    });
+    // Sort commune options alphabetically
+    communeOptions.sort(function(a, b) {
+        return a.localeCompare(b);
+    });
+    // Append sorted options to the dropdown
+    communeOptions.forEach(function(commune) {
+        var option = document.createElement('option');
+        option.value = commune;
+        option.textContent = commune;
+        communeDropdown.appendChild(option);
+    });
+});
+
+// Event listener for commune dropdown change
+document.getElementById('communeDropdown').addEventListener('change', function() {
+    var selectedCommune = this.value;
+
+    // Find the selected commune layer
+    var selectedCommuneLayer = communesLayer.getLayers().find(function(layer) {
+        return layer.feature.properties.NOM.toLowerCase() === selectedCommune.toLowerCase();
+    });
+
+    if (selectedCommuneLayer) {
+        // Zoom to the selected commune
+        map.fitBounds(selectedCommuneLayer.getBounds());
+        
+        // Define options for the codeDU dropdown based on the selected commune
+        var codeDuDropdown = document.getElementById('codeDuDropdown');
+        codeDuDropdown.innerHTML = '<option value="" disabled selected>Document d\'Urbanisme</option>';
+
+        var communeCodeDuMap = {
+            'Oulad Sidi Ali Ben Youssef' : [
+                { value: '20', text: "PLAN DE DEVELOPPEMENT DU CENTRE OULED SIDI ALI BEN YOUSSEF" }
+            ],
+            'Jabria' : [
+                { value: '48', text: "PLAN DE DEVELOPPEMENT DU CENTRE D'EL JABRIA" }
+            ],
+            'Zaouiat Lakouacem' : [
+                { value: '29', text: "PLAN DE DEVELOPPEMENT DU CENTRE ZAOUIAT LAKOUACEM" }
+            ],
+            'Mettouh' : [
+                { value: '51', text: "PA DU CENTRE METTOUH" }
+            ],
+            'Boulaouane' : [
+                { value: '44', text: "PLAN DE DEVELOPPEMENT DU CENTRE BOULAAOUANE" }
+            ],
+            'Zaouiat Saiss' : [
+                { value: '42', text: "PLAN DE DEVELOPPEMENT DU CENTRE ZAOUIAT SAISS" }
+            ],
+            'Sebt Saiss' : [
+                { value: '41', text: "PLAN DE DEVELOPPEMENT DU CENTRE SEBT SAISS" }
+            ],
+            'Sidi Abed' : [
+                { value: '54', text: "PA DU CENTRE DE LA COLLECTIVITE TERRITORIALE DE SIDI ABED" }
+            ],
+            'Ouled Frej' : [
+                { value: '35', text: "PA DU CENTRE OULED FREJ" }
+            ],
+            'Oulad Aissa' : [
+                { value: '18', text: "PLAN DE DEVELOPPEMENT DU CENTRE OULED AISSA" }
+            ],
+            'Ouled Hcine' : [
+                { value: '36', text: "PA DU CENTRE DE LA COLLECTIVITE TERRITORIALE OULED HCINE (SEBT DOUIB)" }
+            ],
+            'Chtouka' : [
+                { value: '45', text: "PA DU CENTRE DE CHTOUKA" }
+            ],
+            'Lamharza Essahel' : [
+                { value: '4', text: "PA DU CENTRE LAMHARZA ESSAHEL" }
+            ],
+            'Oulad Rahmoune': [
+                { value: '49', text: "PA DU CENTRE CHAABAT LAHWALA" },
+                { value: '58', text: "PA DU CENTRE DE DAKHLA" },
+                { value: '59', text: "PA DU CENTRE JAMAAT HAOUZIA" }
+            ],
+            'El Jadida' : [
+                { value: '1', text: "" }
+            ],
+            'Oulad Hamdane' : [
+                { value: '16', text: "PLAN DE DEVELOPPEMENT DU CENTRE OULED HAMDANE" }
+            ],
+            'Si Hsain Ben Abderrahmane' : [
+                { value: '27', text: "PLAN DE DEVELOPPEMENT DU CENTRE S.H.B.ABDERRAHMAN" }
+            ],
+            'Moulay Abdellah' : [
+                { value: '46', text: "PA DU CENTRE DE MOULAY ABDELLAH" },
+                { value: '6', text: "PA DU CENTRE DE SIDI BOUZID" }
+            ],
+            'Haouzia': [
+                { value: '28', text: "PA DU POLE URBAIN DE MAZAGAN" },
+                { value: '34', text: "PA DE CENTRE HAOUZIA" },
+                { value: '43', text: "PA DE LA ZONE NORD EST  DE LA VILLE  D'ELJADIDA ET UNE PARTIE DE LA COLLECTIVITE DE HAOUZIA" }
+            ],
+            'Ouled Ghanem' : [
+                { value: '39', text: "PLAN DE DEVELOPPEMENT DU CENTRE OULAD GHANEM" }
+            ],
+            "Sidi Mhamed Akhdim" : [
+                { value: '40', text: "PLAN DE DEVELOPPEMENT DU CENTRE SIDI MHAMED AKHDIM" }
+            ],
+            'Chaibate' : [
+                { value: '21', text: "PLAN DE DEVELOPPEMENT DU CENTRE DE LA COMMUNE TERRITORIALE DE CHAIBATE" }
+            ],
+            'Azemmour' : [
+                { value: '2', text: "PA DE LA VILLE D'AZEMMOUR" }
+            ],
+            'Lbir Jdid' : [
+                { value: '3', text: "PA DU CENTRE DE LBIR JDID" }
+            ],
+            'Laghdira' : [
+                { value: '10', text: "PA DU CENTRE LAGHDIRA" }, 
+            ],
+            'Sidi Ali Ben Hamdouche' : [
+                { value: '7', text: "PA DU CENTRE SIDI ALI BEN HAMMDOUCH" }
+            ],
+            'Bni Hilal' : [
+                { value: '11', text: "PA DU CENTRE BNI HILAL" }
+            ],
+            'Bni Tsiriss' : [
+                { value: '23', text: "PLAN DE DEVELOPPEMENT DE BNI TSIRIS" }
+            ],
+            'Bouhmame' : [
+                { value: '53', text: "PA DU CENTRE DE LA COLLECTIVITE TERRITORIALE BOUHMAME" }
+            ],
+            'Khmis Ksiba' : [
+                { value: '26', text: "PLAN DE DEVELOPPEMENT DU CENTRE KHMIS KSIBA" }
+            ],
+            'Koudiat Bni Dghough' : [
+                { value: '25', text: "PLAN DE DEVELOPPEMENT DU CENTRE KOUDIAT FRACTION GHWALEM CR BNI DGHOUGH" }
+            ],
+            'Kridid' : [
+                { value: '13', text: "PA DU CENTRE SEBT LAMAARIF" }
+            ],
+            'Laagagcha' : [
+                { value: '47', text: "PA DU CENTRE DE LAAGAGCHA" }
+            ],
+            'Laamria' : [
+                { value: '33', text: "PLAN DE DEVELOPPEMENT DU CENTRE LAAMRIA" }
+            ],
+            'Laaounate' : [
+                { value: '50', text: "PA DU CENTRE DE LAAOUNATE" }
+            ],
+            'Laghnadra' : [
+                { value: '62', text: "PA DU CENTRE DE LAGHNADRA" },
+                { value: '61', text: "PA DU CENTRE DE LAMNAKRA" }
+            ],
+            'Lgharbia' : [
+                { value: '9', text: "PA DU CENTRE DE TNINE GHARBIA" },
+                { value: '57', text: "PA DU CENTRE BEN YEFFOU" }
+            ],
+            'Lmechrek' : [
+                { value: '30', text: "PA DU CENTRE KOUDIAT RIOUNI" },
+                { value: '31', text: "PA DU CENTRE TOUILAAT" }
+            ],
+            'Loualidia' : [
+                { value: '5', text: "PA DU CENTRE DE LOUALIDIA" }
+            ],
+            "M'tal" : [
+                { value: '19', text: "PLAN DE DEVELOPPEMENT DU CENTRE M'TAL" }
+            ],
+            'Metrane' : [
+                { value: '22', text: "PLAN DE DEVELOPPEMENT DU CENTRE HAD AAOUANATE" }
+            ],
+            'Oulad Amrane' : [
+                { value: '12', text: "PA DU CENTRE OULAD AMRANE" }
+            ],
+            'Oulad Boussaken' : [
+                { value: '24', text: "PA DU CENTRE  OULED BOUSSAKEN" }
+            ],
+            'Oulad Sbaita' : [
+                { value: '14', text: "PA DU CENTRE DE LA CT OULED SBAITA" }
+            ],
+            'Oulad Si Bouhya' : [
+                { value: '32', text: "PLAN DE DEVELOPPEMENT DU CENTRE DE LA COMMUNE TERRITORIALE DE OULAD SI BOUHYA" }
+            ],
+            'Saniat Berguig' : [
+                { value: '15', text: "PA DU CENTRE DE LA CR SANIAT BERGUIG" }
+            ],
+            'Sidi Bennour' : [
+                { value: '38', text: "PA DE LA COLLECTIVITE DE SIDI BENNOUR" },
+                { value: '52', text: "PA DE LA ZONE NORD OUEST DE LA VILLE DE SIDI BENNOUR" }
+            ],
+            'Tamda' : [
+                { value: '37', text: "PLAN DE DEVELOPPEMENT DU CENTRE RURAL TAMDA" }
+            ],
+            'Zemamra' : [
+                { value: '56', text: "PA DE LA COLLECTIVITE  TERRITORIALE DE ZEMAMRA" }
+            ],
+            'El Jadida' : [
+                { value: null, text: "En cours d'étude" }
+            ],
+            'Sidi Smail' : [
+                { value: null, text: "En cours d'étude" }
+            ],
+            'Mogress' : [
+                { value: null, text: "En cours d'étude" }
+            ],
+        };
+        var communeOptions = communeCodeDuMap[selectedCommune];
+        if (communeOptions) {
+            communeOptions.forEach(function(option) {
+                var optionElem = document.createElement('option');
+                optionElem.value = option.value;
+                optionElem.textContent = option.text;
+                codeDuDropdown.appendChild(optionElem);
+            });
+        }
+    }
+});
+
+var layerControl;
+var selectedLayers = [];
+
+var addedLayers = [];
+
+function updateMap(selectedCodeDu) {
+    var layerInfo = {
+        zoningLayer: zoningLayer,
+        evLayer: evLayer,
+        voirieLayer: voirieLayer,
+        equipLayer: equipLayer,
+        parkingLayer: parkingLayer,
+        placesLayer: placesLayer,
+        servitudesLayer: servitudesLayer,
+        
+    };
+    var propertiesByLayer = {
+        zoningLayer: ['NOM', 'INDICE', 'ZONE_STD', 'Indice_STD','SOUS_ZONE', 'Indice_SZ','RECUL', 'COS','CUS','HAUTEUR_MA', 'LARGEUR_MI', 'NIVEAU','OBSERVATIO' ],
+        evLayer: ['TYPE', 'INDICE', 'ETAT', 'OBSERVATIO' ],
+        voirieLayer: ['NOM', 'EMPRISE', 'ETAT', 'Classe_voi', 'OBSERVATIO'],
+        equipLayer:['TYPE', 'INDICE', 'NATURE', 'ETAT', 'OBSERVATIO'],
+        parkingLayer: ['NATURE', 'INDICE', 'ETAT', 'OBSERVATIO'],
+        placesLayer: ['NATURE', 'INDICE', 'ETAT', 'OBSERVATIO'],
+        servitudesLayer: ['NATURE', 'TYPE', 'INDICE', 'HAUTEUR_MA', 'LARGEUR_MI', 'NIVEAU','OBSERVATIO'],
+    };
+    var labels = {
+        'TYPE': 'Nom',
+        'INDICE': 'Indice',
+        'ETAT': 'Etat',
+        'OBSERVATIO': 'Document d\'Urbanisme',
+        'NOM': 'Nom',
+        'EMPRISE': 'Emprise',
+        'Classe_voi': 'Classe',
+        'NATURE': 'Nature',
+        'HAUTEUR_MA': 'Hauteur maximale',
+        'LARGEUR_MI':'Largeur minimale',
+        'NIVEAU': 'Niveau',
+        'ZONE_STD': 'Zone STD',
+        'Indice_STD': 'Indice STD',
+        'SOUS_ZONE': 'Sous-Zone',
+        'Indice_SZ': 'Indice sous-zone',
+        'RECUL': 'Recul'
+    };
+     // Iterate over each layer and its features
+     Object.keys(layerInfo).forEach(function(layerKey) {
+        var layer = layerInfo[layerKey];
+        layer.eachLayer(function(feature) {
+            if (feature.feature.properties.Code_DU === selectedCodeDu) {
+                if (!map.hasLayer(feature)) {
+                    feature.addTo(map);
+                    addedLayers.push(feature);
+
+                    var propertiesToShow = propertiesByLayer[layerKey];
+                    var popupContent = "<div class='custom-popup'>";
+                        propertiesToShow.forEach(function(property) {
+                        if (feature.feature.properties.hasOwnProperty(property)) {
+                            var label = labels[property] || property;  // Use label if available, otherwise use property key
+                            popupContent += "<strong>" + label + ":</strong> " + feature.feature.properties[property] + "<br>";
+                        }
+                    });
+                    popupContent += "</div>";
+                    feature.bindPopup(popupContent);
+                }
+            } else {
+                map.removeLayer(feature);
+            }
+        });
+    });
+}
+
+// Event listener for codeDU dropdown change
+document.getElementById('codeDuDropdown').addEventListener('change', function() {
+    var selectedCodeDu = this.value;
+    updateMap(selectedCodeDu);
+    // Show/hide features based on the selected Code_DU value
+    [evLayer, voirieLayer, equipLayer, parkingLayer, placesLayer, servitudesLayer, zoningLayer, limiteLayer].forEach(function(layer) {
+        layer.eachLayer(function(feature) {
+            if (feature.feature.properties.Code_DU === selectedCodeDu) {
+                feature.addTo(map);
+            } else {
+                map.removeLayer(feature);
+            }
+        });
+    });
+    var selectedFeature = limiteLayer.getLayers().find(function(layer) {
+        return layer.feature.properties.Code_DU === selectedCodeDu;
+    });
+    if (selectedFeature) {
+        map.fitBounds(selectedFeature.getBounds());
+    }
+}); 
+map.on('overlayadd overlayremove', function(event) {
+    var layer = event.layer;
+    if (event.type === 'overlayadd') {
+        if (!selectedLayers.includes(layer)) {
+            selectedLayers.push(layer);
+        }
+    } else if (event.type === 'overlayremove') {
+        var index = selectedLayers.indexOf(layer);
+        if (index !== -1) {
+            selectedLayers.splice(index, 1);
+        }
+    }
+    // Update the map based on the currently selected Code_DU value
+    var selectedCodeDu = document.getElementById('codeDuDropdown').value;
+    updateMap(selectedCodeDu);
+});
+
+L.control.scale({ imperial: false }).addTo(map);
+
+var resetViewControl = L.Control.extend({
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+
+        var resetButton = L.DomUtil.create('a', 'leaflet-control-reset-view', container);
+        resetButton.href = '#';
+        resetButton.title = 'Vue principale';
+
+        var icon = L.DomUtil.create('img', 'leaflet-control-reset-icon', resetButton);
+        icon.src = 'https://upload.wikimedia.org/wikipedia/commons/3/34/Home-icon.svg';
+        icon.style.width = '16px'; 
+        icon.style.height = '16px'; 
+
+        resetButton.style.display = 'flex';
+        resetButton.style.justifyContent = 'center';
+        resetButton.style.alignItems = 'center';
+
+        L.DomEvent.on(resetButton, 'click', function(e) {
+            if (!map.hasLayer(provincesLayer)) {
+                map.addLayer(provincesLayer);
+            }
+            if (!map.hasLayer(communesLayer)) {
+                map.addLayer(communesLayer);
+            }
+            map.fitBounds(provincesLayer.getBounds()); 
+            L.DomEvent.stopPropagation(e); 
+        });
+        return container;
+    }
+});
+
+map.addControl(new resetViewControl({ position: 'topleft' }));
+
+map.addControl(new L.Control.LinearMeasurement({
+        unitSystem: 'metric',
+        color: '#00FBFF',
+        type: 'line',
+        position: 'topleft'
+    }));
+
+var LegendControl = L.Control.extend({
+    options: {
+        position: 'topright' 
+    },
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'legend-control leaflet-control leaflet-bar');
+        var legendButton = L.DomUtil.create('button', 'legend-toggle-button', container);
+        legendButton.innerHTML = '<img src="legend_icon.png" alt="Show Legend">'; 
+        var legendContainer = L.DomUtil.create('div', 'legend-container leaflet-control-hidden', container);
+        legendContainer.style.display = 'none'; 
+
+        this.populateLegend(legendContainer);
+
+        L.DomEvent.on(legendButton, 'click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            legendContainer.style.display = (legendContainer.style.display === 'none') ? 'block' : 'none';
+            legendButton.innerHTML = (legendContainer.style.display === 'block') ?
+                'Fermer' : '<img src="legend_icon.png" alt="Show Legend">'; 
+        });
+        return container;
+    },
+    populateLegend: function(legendContainer) {
+        var styles = {
+            'Provinces': {fillColor: 'rgba(128, 128, 128, 0.1)', fillOpacity: 0.9, color: '#800000', weight: 2.5},
+            'Communes': {fillColor: 'transparent', color: 'black', weight: 0.8},
+            'Limite du document': {fillColor: 'transparent', color: 'yellow', dashArray: '5', weight: 2},
+            'Tissus à protéger': {fillColor: 'transparent', color: 'red', dashArray: '1', weight: 2},
+            'Espaces verts': {fillColor: '#38A800', fillOpacity: 0.5, color: 'white', weight: 0.2},
+            'Servitudes': {fillColor: '#73DFFF', fillOpacity: 0.5, color: 'white', weight: 0.2},
+            'Voirie': {fillColor: '#1A1A1A', fillOpacity: 0.8, color: 'white', weight: 0.2},
+            'Parking': {fillColor: 'red', fillOpacity: 0.2, color: 'white', weight: 0.2},
+            'Places': {fillColor: 'grey', fillOpacity: 0.8, color: 'white', weight: 0.2},
+        };
+        Object.keys(styles).forEach(function(key) {
+            this.addLegendItem(legendContainer, key, styles[key]);
+        }, this);
+        this.addZoningSection(legendContainer);
+ 
+        this.addEquipementSection(legendContainer); 
+    },
+    addEquipementSection: function(legendContainer) {
+        var equipSection = L.DomUtil.create('div', 'legend-section', legendContainer);
+        var equipHeader = L.DomUtil.create('div', 'legend-header', equipSection);
+        equipHeader.innerHTML = 'Equipements';
+        var equipList = L.DomUtil.create('div', 'legend-items leaflet-control-hidden', equipSection);
+
+        var equipStyles = {
+            'Administration': '#732600',
+            'Cimetière': '#002673',
+            'Culture': '#FFDE3E',
+            'Enseignement': '#A83800',
+            'Intérêt général': 'orange',
+            'Mosquée': 'brown',
+            'Privé': 'red',
+            'Santé publique': 'pink',
+            'Service public': '#6B6BD6',
+            'Sport': '#149ECE'
+        };
+
+        Object.keys(equipStyles).forEach(function(type) {
+            this.addLegendItem(equipList, type, {fillColor: equipStyles[type], fillOpacity: 0.8, color: 'white', weight: 0.1});
+        }, this);
+
+        L.DomEvent.on(equipHeader, 'click', function() {
+            equipList.style.display = (equipList.style.display === 'none') ? 'block' : 'none'; 
+        });
+    },
+    addZoningSection: function(legendContainer) {
+        var zoningSection = L.DomUtil.create('div', 'legend-section', legendContainer);
+        var zoningHeader = L.DomUtil.create('div', 'legend-header', zoningSection);
+        zoningHeader.innerHTML = 'Zonage';
+        var zoningList = L.DomUtil.create('div', 'legend-items', zoningSection);
+        zoningList.style.display = 'none';
+
+        var colorMapping = {
+            'Activité économique' : '#FFA77F',
+            'Equipements sportifs': '#FFEE65',
+            'Habitat': '#FFFFFF',
+            'Zones agricoles et naturelles': '#D1FF73',
+            'Zones spécifiques' : '#BD7EBE'
+        };
+        Object.keys(colorMapping).forEach(function(zoneType) {
+            this.addLegendItem(zoningList, zoneType, {fillColor: colorMapping[zoneType], fillOpacity: 0.8, color: '#d3d3d3', weight: 0.1});
+        }, this);
+
+        L.DomEvent.on(zoningHeader, 'click', function() {
+            zoningList.style.display = (zoningList.style.display === 'none') ? 'block' : 'none';
+        });
+    },
+    addLegendItem: function(container, name, style) {
+        var item = L.DomUtil.create('div', 'legend-item', container);
+        var icon = L.DomUtil.create('i', '', item);
+        icon.style.width = '24px';
+        icon.style.height = '18px';
+        icon.style.float = 'left';
+        icon.style.marginRight = '8px';
+        icon.style.opacity = '0.9';
+
+        if (style.fillColor !== 'transparent') {
+            icon.style.backgroundColor = style.fillColor;
+            icon.style.opacity = style.fillOpacity;
+            icon.style.border = '2px solid ' + style.color;
+        } else {
+            icon.style.border = style.weight + 'px solid ' + style.color;
+            if (style.dashArray) {
+                icon.style.borderStyle = 'dashed';
+            }
+        }
+
+        var text = L.DomUtil.create('span', '', item);
+        text.innerHTML = name;
+        text.style.paddingLeft = '6px'; 
+    }
+});
+
+map.addControl(new LegendControl());
+
+function convertCoordinates(x, y) {
+         var coords = proj4("EPSG:26191", "EPSG:4326", [x, y]); 
+         return coords.map(coord => parseFloat(coord.toFixed(10))); 
+}
+
+var latlngs = []; 
+        function addCoordinate() {
+          var x = parseFloat(document.getElementById('x-coord').value.replace(',', '.'));
+          var y = parseFloat(document.getElementById('y-coord').value.replace(',', '.'));
+          if (isNaN(x) || isNaN(y)) {
+            alert("Veuillez saisir des coordonnées X et Y valides.");
+            return;
+          }
+          var coords = convertCoordinates(x, y);
+
+          latlngs.push(coords);
+
+          document.getElementById('x-coord').value = ''; 
+          document.getElementById('y-coord').value = ''; 
+          updateUrbanInfoButton(); 
+
+          var table = document.getElementById("coordinates-table");
+          var row = table.insertRow();
+          var cell1 = row.insertCell(0);
+          var cell2 = row.insertCell(1);
+          var cell3 = row.insertCell(2);
+          var cell4 = row.insertCell(3);
+          cell1.innerHTML = 'B' + (table.rows.length - 1); 
+          cell2.innerHTML = `<span>${x.toFixed(2)}</span><input type="text" value="${x.toFixed(2)}" style="display:none; width: 90%">`; 
+          cell3.innerHTML = `<span>${y.toFixed(2)}</span><input type="text" value="${y.toFixed(2)}" style="display:none; width: 90%">`; 
+          cell4.innerHTML = '<button class="editbtn" onclick="editCoordinate(this)"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/OOjs_UI_icon_edit-ltr.svg" style="height:14px; width:14px;"><span>Edit</span></button>';
+        }
+
+function drawPolygon() {
+            if (polygon) {
+                polygon.remove();
+            }
+            polygon = L.polygon(latlngs.map(coord => [coord[1], coord[0]]), {color: 'red'}).addTo(map);
+            var bounds = polygon.getBounds();
+            var zoomToSet = map.getBoundsZoom(bounds) - 4; 
+            map.setView(bounds.getCenter(), zoomToSet);
+            updateUrbanInfoButton();
+}
+
+function clearMap() {
+    addedLayers.forEach(layer => {
+        if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+        }
+    });
+    if (drawnItems) {
+        drawnItems.clearLayers(); 
+    }
+    addedLayers = [];
+    if (drawControl && map) {
+        disableDrawing();
+    }
+    if (polygon) {
+        polygon.remove();
+        polygon = null;
+    }
+    latlngs = [];
+    var table = document.getElementById("coordinates-table");
+    while (table.rows.length > 1) {
+        table.deleteRow(1);
+    }
+    updateUrbanInfoButton(); 
+    var fileInput = document.querySelector('.leaflet-control-filelayer input[type=file]');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    document.getElementById('csv-file-input').value = ''; 
+    document.getElementById('file-input').value = ''; 
+    fromDXF = false; 
+    fromPluginFile = false; 
+    fromDraw = false;
+    closeInfoPopup(); 
+    setupFileLayerHandling();
+
+    var localiserBtn = document.getElementById('localiserBtn');
+    localiserBtn.disabled = false;
+    localiserBtn.style.color = 'white';
+    localiserBtn.style.cursor = 'pointer';
+}
+
+function editCoordinate(button) {
+         var cells = button.parentNode.parentNode.cells;
+         var xInput = cells[1].querySelector('input');
+         var yInput = cells[2].querySelector('input');
+         var xSpan = cells[1].querySelector('span');
+         var ySpan = cells[2].querySelector('span');
+         var textSpan = button.querySelector('span');
+
+         if (xInput.style.display === 'none') {
+          xSpan.style.display = 'none';
+          ySpan.style.display = 'none';
+          xInput.style.display = '';
+          yInput.style.display = '';
+          textSpan.textContent = 'Save'; 
+         } else {
+          xSpan.textContent = xInput.value;
+          ySpan.textContent = yInput.value;
+          xInput.style.display = 'none';
+          yInput.style.display = 'none';
+          xSpan.style.display = '';
+          ySpan.style.display = '';
+          textSpan.textContent = 'Edit'; 
+
+          var rowIndex = button.parentNode.parentNode.rowIndex - 1;
+          var coords = proj4("EPSG:26191", "EPSG:4326", [parseFloat(xInput.value), parseFloat(yInput.value)]);
+          latlngs[rowIndex] = coords;
+         }
+}
+        
+function updateUrbanInfoButton() {
+    var btn = document.getElementById('urban-info-btn');
+    var localiserBtn = document.getElementById('localiserBtn');
+    localiserBtn.disabled = fromDXF || fromPluginFile;
+    if (polygon && latlngs.length >= 3) {
+        btn.disabled = false;
+        btn.style.color = 'white';
+        btn.style.cursor = 'pointer';
+    } else {
+        btn.disabled = true;
+        btn.style.color = 'grey';
+        btn.style.cursor = 'not-allowed';
+    }
+}
+
+function displayUrbanInfo() {
+    closeInfoPopup();
+    var popup = document.getElementById("popup");
+    var newContentIndex = popup.innerHTML.indexOf("<strong>Note indicative:</strong>");
+    if (newContentIndex !== -1) {
+        popup.innerHTML = popup.innerHTML.substring(0, newContentIndex);
+    }
+    if (!polygon) {
+        alert("Veuillez localiser le polygone avant de continuer.");
+        return;
+    }
+
+    var processedCoords;
+    if (fromDXF || fromPluginFile || fromDraw) {
+        processedCoords = latlngs.map(coord => [coord[1], coord[0]]);
+        if (processedCoords.length > 0 && (processedCoords[0][0] !== processedCoords[processedCoords.length - 1][0] || processedCoords[0][1] !== processedCoords[processedCoords.length - 1][1])) {
+            processedCoords.push(processedCoords[0]); 
+        }
+    } else {
+        processedCoords = latlngs.slice(); 
+        if (processedCoords.length === 3 && processedCoords[0][0] === processedCoords[processedCoords.length - 1][0] && processedCoords[0][1] === processedCoords[processedCoords.length - 1][1]) {
+        } else if (processedCoords.length === 3) {
+            processedCoords.push(processedCoords[0]);
+        } else if (processedCoords[0][0] !== processedCoords[processedCoords.length - 1][0] || processedCoords[0][1] !== processedCoords[processedCoords.length - 1][1]) {
+            processedCoords.push(processedCoords[0]);
+        }
+    }
+
+    var userPolygon = turf.polygon([processedCoords]);
+    var hasCovered = false;
+    var codeDUValues = ['1', '17', '8', '60'];
+    var firstIntersection = true; 
+    var sdauMessage = '';
+
+    limiteLayer.eachLayer(function(layer) {
+        if (!hasCovered) {
+            var feature = layer.feature;
+            var intersection = turf.intersect(userPolygon, feature);
+            if (intersection) {
+                var codeDU = feature.properties.Code_DU;
+                var nom = feature.properties.NOM ? feature.properties.NOM : " ";
+                if (codeDUValues.includes(codeDU)) {
+                    showPopup(`Le terrain est situé à l'intérieur de l'aire d'étude du <strong>${nom}</strong> en cours d'étude.`);
+                    hasCovered = true; 
+                    checkSdauIntersection(userPolygon, function(isInsideSdau) {
+                        if (isInsideSdau) {
+                            showPopup(' Toutefois, il est à signaler que le terrain se trouve à l’intérieur du périmètre du <strong>Schéma Directeur d’Aménagement Urbain du Grand El Jadida</strong> homologué par décret n°2.09.146 du 15 juin 2009.');
+                        }
+                    });
+                } else {
+                    var observatio = feature.properties.OBSERVATIO ? feature.properties.OBSERVATIO : " ";
+                    showPopup(`Le terrain est couvert par le <strong>${nom}</strong>, ${observatio}.<br>`);
+                    hasCovered = true; 
+                    updateDropdownAndMap(codeDU);
+                }
+            }
+        }
+    });
+
+    if (!hasCovered) {
+        showPopup('Le terrain est situé dans une zone actuellement <strong>non couverte par un document d\'urbanisme</strong>.');
+        checkSdauIntersection(userPolygon, function(isInsideSdau) {
+            if (isInsideSdau) {
+                closeInfoPopup(); 
+                showPopup('Le terrain se trouve à l’intérieur du périmètre du <strong>Schéma Directeur d’Aménagement Urbain du Grand El Jadida</strong> homologué par décret n°2.09.146 du 15 juin 2009.');
+            }
+        });
+    }
+
+    polygon.bringToFront();
+}
+
+function checkSdauIntersection(userPolygon, callback) {
+    var isInsideSdau = false;
+    sdauLayer.eachLayer(function(layer) {
+        if (!isInsideSdau) {
+            var feature = layer.feature;
+            var intersection = turf.intersect(userPolygon, feature);
+            if (intersection) {
+                isInsideSdau = true;
+            }
+        }
+    });
+    callback(isInsideSdau);
+}
+
+
+function updateDropdownAndMap(codeDU) {
+    document.getElementById('codeDuDropdown').value = codeDU;
+    updateMap(codeDU);
+}
+
+function checkOtherLayers(userPolygon, isFirst) {
+    var layersToCheck = [zoningLayer, equipLayer, servitudesLayer, parkingLayer, placesLayer, evLayer, voirieLayer];
+    var layerNames = ['Zoning', 'Equipements', 'Servitudes', 'Parking', 'Places', 'Espaces verts', 'Voirie'];
+    var uniqueMessages = new Set(); 
+    layersToCheck.forEach(function(layer, index) {
+        layer.eachLayer(function(layerFeature) {
+            var intersection = turf.intersect(userPolygon, layerFeature.feature);
+            if (intersection) {
+                var message = '';
+                var nom, indice;
+                switch(layerNames[index]) {
+                    case 'Voirie':
+                        var nom = layerFeature.feature.properties.NOM ? layerFeature.feature.properties.NOM : 'non dénommée';                         
+                        var emprise = layerFeature.feature.properties.EMPRISE;
+                        message += `- Grevé par la voie d'aménagement <strong>${nom}</strong> d'une emprise de <strong>${emprise} m</strong>;`;
+                        break;
+                    case 'Equipements':
+                        nom = layerFeature.feature.properties.TYPE.toLowerCase(); 
+                        indice = layerFeature.feature.properties.INDICE; 
+                        message += `- Partie réservée à <strong>${nom} (${indice})</strong>;`; 
+                        break;
+                    case 'Espaces verts':
+                        nom = layerFeature.feature.properties.TYPE.toLowerCase(); 
+                        indice = layerFeature.feature.properties.INDICE; 
+                        message += `- Partie en <strong>${nom} (${indice})</strong>;`; 
+                        break;
+                    case 'Parking':
+                        indice = layerFeature.feature.properties.INDICE; 
+                        message += `- Partie réservée à <strong>parking (${indice})</strong>;`;
+                        break;
+                    case 'Places':
+                        indice = layerFeature.feature.properties.INDICE; 
+                        message += `- Partie réservée à <strong>place (${indice})</strong>;`;
+                        break;
+                    case 'Servitudes':
+                        nom = layerFeature.feature.properties.TYPE.toLowerCase(); 
+                        indice = layerFeature.feature.properties.INDICE; 
+                        message += `- Partie réservée à <strong>${nom} (${indice})</strong>;`; 
+                        break;
+                    case 'Zoning':
+                        nom = layerFeature.feature.properties.NOM.toLowerCase();
+                        indice = layerFeature.feature.properties.INDICE; 
+                        message += `- Partie en <strong>${nom} (${indice})</strong>;`;    
+                        break;
+                }
+                uniqueMessages.add(message);
+            }
+        });
+    });
+     var messages = Array.from(uniqueMessages);
+    if (messages.length == 1) {
+        messages[0] = messages[0].replace('Partie en ', '');
+    }
+
+    if (messages.length > 0) {
+        messages[messages.length - 1] = messages[messages.length - 1].replace(';', '.');
+        messages.forEach(function(msg) {
+            isFirst = false; 
+        });
+    }
+}
+
+function closeCSVInstructions() {
+    document.getElementById('csv-upload-instructions').style.display = 'none';
+}
+
+function triggerFileInput() {
+    document.getElementById('file-input').click();
+}
+
+var fromDXF = false; 
+function displayDXFOnMap(geojsonData) {
+    fromDXF = true; 
+    if (polygon) {
+        polygon.remove(); 
+    }
+    latlngs = []; 
+    L.geoJSON(geojsonData, {
+        onEachFeature: function (feature, layer) {
+            var coords = feature.geometry.coordinates[0];
+            coords.forEach(coordPair => {
+                latlngs.push([coordPair[1], coordPair[0]]);
+            });
+        }
+    });
+    polygon = L.polygon(latlngs, { color: 'red' }).addTo(map);
+    var targetBounds = polygon.getBounds();
+    map.fitBounds(targetBounds); 
+    var zoomLevel = map.getZoom() - 2; 
+    map.setView(targetBounds.getCenter(), zoomLevel); 
+    updateUrbanInfoButton(); 
+    closeFileUploadPopup();
+    var layerElement = polygon.getElement();
+    if (layerElement) {
+        layerElement.style.pointerEvents = 'none';
+    }
+}
+
+document.getElementById('file-input').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var dxf = event.target.result;
+            var parser = new DxfParser();
+            var parsedData = parser.parseSync(dxf);
+            var geojsonData = convertDXFToGeoJSON(parsedData);
+            displayDXFOnMap(geojsonData); 
+        };
+        reader.readAsText(file);
+    }
+});
+
+function transformCoordinates(x, y) {
+    return proj4('EPSG:26191', 'EPSG:4326', [x, y]);
+}
+
+function convertDXFToGeoJSON(dxfData) {
+    var geojson = {
+        type: "FeatureCollection",
+        features: []
+    };
+
+    if (dxfData.entities) {
+        dxfData.entities.forEach(entity => {
+            var coordinates = entity.vertices.map(v => transformCoordinates(v.x, v.y));
+            if (coordinates[0] !== coordinates[coordinates.length - 1]) {
+                coordinates.push(coordinates[0]);
+            }
+            geojson.features.push({
+                type: "Feature",
+                geometry: {
+                    type: "Polygon",
+                    coordinates: [coordinates]
+                },
+                properties: entity
+            });
+        });
+    }
+    return geojson;
+}
+
+function togglePopup() {
+    var popup = document.getElementById("popup");
+    if (popup.style.display === "none") {
+        popup.style.display = "block";
+    } else {
+        popup.style.display = "none";
+    }  
+}
+function openFileUploadPopup() {
+    document.getElementById('file-upload-popup').style.display = 'block';
+}
+
+function closeFileUploadPopup() {
+    document.getElementById('file-upload-popup').style.display = 'none';
+}
+
+var polygon, fileLayerControl, fromPluginFile = false;
+
+function setupFileLayerHandling() {
+    if (fileLayerControl) {
+        map.removeControl(fileLayerControl);
+    }
+    const kmlInput = document.getElementById('kml-file-input');
+    if (kmlInput) {
+        fileLayerControl = L.Control.betterFileLayer({
+            button: kmlInput,
+            fileSizeLimit: 10000,
+            formats: ['.kml'],
+            layerOptions: {
+                style: {
+                    color: '#06C',
+                    weight: 2
+                },
+                addToMap: false
+            }
+        }).addTo(map);
+        map.on('bfl:layerloaded', function(e) {
+            map.removeLayer(e.layer);
+            handleLayerUpload(e.layer); 
+            fromPluginFile = true; 
+            updateUrbanInfoButton();
+            closeFileUploadPopup(); 
+        });
+    } else {
+        console.error("KML file input not found.");
+    }
+}
+
+function handleLayerUpload(uploadedLayer) {
+    if (polygon) {
+        polygon.remove(); 
+    }
+    latlngs = []; 
+    uploadedLayer.eachLayer(function(layer) {
+        var coords = layer.feature.geometry.coordinates[0];
+        coords.forEach(coordPair => {
+            latlngs.push([coordPair[1], coordPair[0]]); 
+        });
+        
+    });
+    polygon = L.polygon(latlngs, {
+        color: '#ff0000',  
+        fillColor: '#ff0000',  
+        fillOpacity: 1  
+    }).addTo(map);
+    var targetBounds = polygon.getBounds();
+    map.fitBounds(targetBounds); 
+    var zoomLevel = map.getZoom() - 2; 
+    map.setView(targetBounds.getCenter(), zoomLevel); 
+    updateUrbanInfoButton();  
+    closeFileUploadPopup();
+}
+
+setupFileLayerHandling();
+
+function openCSVInstructions() {
+    document.getElementById('csv-upload-instructions').style.display = 'block';
+}
+
+function triggerCSVFileInput() {
+    document.getElementById('csv-file-input').click();
+    document.getElementById('csv-upload-instructions').style.display = 'none';  
+}
+
+function handleCSVUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            processCSV(text);
+            document.getElementById('csv-file-input').value = '';
+        };
+        reader.readAsText(file);
+    }
+    closeFileUploadPopup();
+}
+
+function processCSV(csvText) {
+    const lines = csvText.split('\n');
+    lines.forEach((line, index) => {
+        if (index > 0 && line) { 
+            const columns = line.split(/[,;]/); 
+            const x = parseFloat(columns[0]);
+            const y = parseFloat(columns[1]);
+            if (!isNaN(x) && !isNaN(y)) {
+                addCoordinateFromCSV(x, y);
+            }
+        }
+    });
+}
+
+function addCoordinateFromCSV(x, y) {
+    const coords = convertCoordinates(x, y);
+    latlngs.push(coords);
+    updateTableWithCoordinates(x, y);
+    updateUrbanInfoButton();
+}
+
+function updateTableWithCoordinates(x, y) {
+    var table = document.getElementById("coordinates-table");
+    var row = table.insertRow();
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+    cell1.innerHTML = 'B' + (table.rows.length);
+    cell2.innerHTML = `<span>${x.toFixed(2)}</span><input type="text" value="${x.toFixed(2)}" style="display:none; width: 90%">`;
+    cell3.innerHTML = `<span>${y.toFixed(2)}</span><input type="text" value="${y.toFixed(2)}" style="display:none; width: 90%">`;
+    cell4.innerHTML = '<button class="editbtn" onclick="editCoordinate(this)"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/OOjs_UI_icon_edit-ltr.svg" style="height:14px; width:14px;"><span>Edit</span></button>';
+}
+
+function triggerPluginFileInput() {
+    fileLayerControl._input.click();
+}
+
+    L.drawLocal = {
+        draw: {
+            toolbar: {
+                actions: {
+                    title: 'Annuler le dessin',
+                    text: 'Annuler'
+                },
+                finish: {
+                    title: 'Terminer le dessin',
+                    text: 'Terminer'
+                },
+                undo: {
+                    title: 'Supprimer le dernier point dessiné',
+                    text: 'Supprimer le dernier point'
+                },
+                buttons: {
+                    polyline: 'Dessiner une polyligne',
+                    polygon: 'Dessiner un polygone',
+                    rectangle: 'Dessiner un rectangle',
+                    circle: 'Dessiner un cercle',
+                    marker: 'Placer un marqueur',
+                    circlemarker: 'Placer un marqueur circulaire'
+                }
+            },
+            handlers: {
+                circle: {
+                    tooltip: {
+                        start: 'Cliquez et faites glisser pour dessiner un cercle.'
+                    },
+                    radius: 'Rayon'
+                },
+                circlemarker: {
+                    tooltip: {
+                        start: 'Cliquez sur la carte pour placer un marqueur circulaire.'
+                    }
+                },
+                marker: {
+                    tooltip: {
+                        start: 'Cliquez sur la carte pour placer un marqueur.'
+                    }
+                },
+                polygon: {
+                    tooltip: {
+                        start: 'Cliquez pour commencer à dessiner un polygone.',
+                        cont: 'Cliquez pour continuer à dessiner le polygone.',
+                        end: 'Cliquez sur le dernier point pour terminer le polygone.'
+                    }
+                },
+                polyline: {
+                    error: '<strong>Erreur:</strong> les bords de la forme ne doivent pas se croiser!',
+                    tooltip: {
+                        start: 'Cliquez pour commencer à dessiner une ligne.',
+                        cont: 'Cliquez pour continuer à dessiner la ligne.',
+                        end: 'Cliquez sur le dernier point pour terminer la ligne.'
+                    }
+                },
+                rectangle: {
+                    tooltip: {
+                        start: 'Cliquez et faites glisser pour dessiner un rectangle.'
+                    }
+                },
+                simpleshape: {
+                    tooltip: {
+                        end: 'Relâchez la souris pour terminer le dessin.'
+                    }
+                }
+            }
+        },
+        edit: {
+            toolbar: {
+                actions: {
+                    save: {
+                        title: 'Enregistrer les modifications.',
+                        text: 'Enregistrer'
+                    },
+                    cancel: {
+                        title: 'Annuler les modifications.',
+                        text: 'Annuler'
+                    },
+                    clearAll: {
+                        title: 'Effacer tous les calques.',
+                        text: 'Effacer tout'
+                    }
+                },
+                buttons: {
+                    edit: 'Modifier les calques.',
+                    editDisabled: 'Aucun calque à modifier.',
+                    remove: 'Supprimer les calques.',
+                    removeDisabled: 'Aucun calque à supprimer.'
+                }
+            },
+            handlers: {
+                edit: {
+                    tooltip: {
+                        text: 'Faites glisser les poignées ou le marqueur pour modifier le calque.',
+                        subtext: 'Cliquez sur Annuler pour revenir en arrière.'
+                    }
+                },
+                remove: {
+                    tooltip: {
+                        text: 'Cliquez sur un calque pour le supprimer.'
+                    }
+                }
+            }
+        }
+    };
+function enableDrawing() {
+    map.addControl(drawControl);
+    new L.Draw.Polygon(map, drawControl.options.draw.polygon).enable();
+    closePopup()
+}
+
+function disableDrawing() {
+    map.removeControl(drawControl);
+}
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+var drawControl = new L.Control.Draw({
+    position: 'bottomleft',
+    edit: {
+        featureGroup: drawnItems,
+        poly: {
+            allowIntersection: false
+        }
+    },
+    draw: {
+        polygon: {
+            allowIntersection: false,
+            showArea: true,
+            shapeOptions: {
+                color: '#ff0000',  
+                fillColor: '#ff0000', 
+                fillOpacity: 0.1  
+            },
+            icon: new L.DivIcon({
+                    iconSize: new L.Point(6, 6),  
+                    className: 'leaflet-div-icon'
+                })
+        },
+
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false
+    }
+});
+
+var fromDraw = false;
+map.on(L.Draw.Event.CREATED, function (event) {
+    var layer = event.layer;
+    drawnItems.addLayer(layer);  
+    layer.setStyle({
+        color: '#ff0000',  
+        fillColor: '#ff0000',  
+        fillOpacity: 0.1,  
+    });
+    fromDraw = true;
+
+    var layerElement = layer.getElement();
+    if (layerElement) {
+        layerElement.style.pointerEvents = 'none';
+    }
+
+    if (layer instanceof L.Polygon) {
+        polygon = layer;
+        latlngs = layer.getLatLngs()[0].map(coords => [coords.lat, coords.lng]); 
+        var localiserBtn = document.getElementById('localiserBtn');
+        localiserBtn.disabled = true;
+        localiserBtn.style.color = 'grey';
+        localiserBtn.style.cursor = 'not-allowed';
+    }
+    updatePolygonCoordinates(latlngs);  
+    updateUrbanInfoButton(); 
+    layer.bringToFront();
+});
+
+
+
+function updatePolygonCoordinates(latlngs) {
+    var projectedCoords = latlngs.map(coords => {
+        if (!isNaN(coords[0]) && !isNaN(coords[1])) {
+            var projected = proj4("EPSG:4326", "EPSG:26191", [coords[1], coords[0]]);
+            return [projected[1], projected[0]];  
+        } else {
+            return null;
+        }
+    }).filter(coords => coords !== null);
+
+    if (projectedCoords.length < 3) {
+        return;
+    }
+
+    if (projectedCoords[0][0] !== projectedCoords[projectedCoords.length - 1][0] ||
+        projectedCoords[0][1] !== projectedCoords[projectedCoords.length - 1][1]) {
+        projectedCoords.push(projectedCoords[0]);
+    }
+    polygonCoordinates = projectedCoords;
+    updateUrbanInfoButton();
+
+}
+var customControl = L.Control.extend({
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar2 leaflet-control2 custom-control-zindex2');
+        var infoBox = null;
+
+        var button = L.DomUtil.create('a', 'leaflet-control-custom2', container);
+        button.href = '#';
+        button.title = 'Informations';
+
+        var icon = L.DomUtil.create('img', 'leaflet-control-custom-icon2', button);
+        icon.src = 'https://upload.wikimedia.org/wikipedia/commons/8/88/Exclamation_sign_font_awesome.svg';
+        icon.style.width = '18px';
+        icon.style.height = '18px';
+
+        button.style.display = 'flex';
+        button.style.justifyContent = 'center';
+        button.style.alignItems = 'center';
+
+        L.DomEvent.on(button, 'click', function(e) {
+            if (infoBox && infoBox.parentNode) {
+                infoBox.parentNode.removeChild(infoBox);
+                infoBox = null;               
+            } else {
+                infoBox = L.DomUtil.create('div', 'custom-info-box2 custom-control-zindex2');
+                infoBox.innerHTML = '<p style="font-weight: bold; color: black; font-size: 13px">Ces informations sont fournies à titre indicatif uniquement. Pour obtenir la note de renseignements officielle, veuillez vous rendre sur la plateforme:</p><a href="https://taamir.gov.ma/" target="_blank" style="display: block; text-align: center; font-weight: bold; color: blue; margin-top: 0px;">https://taamir.gov.ma/</a>';
+                infoBox.style.padding = '10px';
+                infoBox.style.zIndex = '10001';
+                L.DomEvent.on(infoBox, 'click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                });
+
+                container.appendChild(infoBox);
+            }
+
+            L.DomEvent.stopPropagation(e);
+        });
+
+        container.style.backgroundColor = 'whitesmoke';
+        container.style.maxWidth = '250px';
+        container.style.fontFamily = 'Montserrat';
+        container.style.zIndex = '10001';
+
+        return container;
+    }
+});
+
+map.addControl(new customControl({ position: 'bottomleft' }));
+
+function showPopup(message, isNewSection = false) {
+    var infoPopup = document.getElementById("info-popup");
+    var infoContent = document.getElementById("info-content");
+    var newContent;
+    if (infoContent.innerHTML.indexOf("<strong>Note urbanistique indicative:</strong>") === -1 && isNewSection) {
+        newContent = "<strong>Note urbanistique indicative:</strong><br/><br/>";
+    } else {      
+        newContent = "";
+    }
+    newContent += message + "<br/>";
+    infoContent.innerHTML += newContent;
+    infoPopup.style.display = "block";
+}
+function closeInfoPopup() {
+    var infoPopup = document.getElementById("info-popup");
+    infoPopup.style.display = "none";
+    document.getElementById("info-content").innerHTML = ""; 
+}
+function closePopup() {
+    var infoPopup = document.getElementById("popup");
+    var toggleButton = document.getElementById("toggle-popup");
+    infoPopup.style.display = "none";
+    toggleButton.classList.remove("shake");
+    setTimeout(function() {
+        toggleButton.classList.add("shake");
+    }, 100); 
+}
+
+var geolocateControl = L.Control.extend({
+    options: {
+        position: 'topleft'  
+    },
+
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+
+        
+        var button = L.DomUtil.create('a', '', container);
+        button.title = "Ma position";  
+        button.innerHTML = '<i class="fas fa-map-marker-alt"></i>';  
+
+        
+        L.DomEvent.on(button, 'click', L.DomEvent.stop)
+                  .on(button, 'click', function () {
+                      map.locate({setView: true, maxZoom: 16});
+                  });
+
+        return container;
+    }
+});
+
+map.addControl(new geolocateControl());
+
+map.on('locationfound', function(e) {
+    L.circleMarker(e.latlng, {
+        radius: 8, 
+        fillColor: "#007bff", 
+        color: "white", 
+        weight: 2, 
+        opacity: 1, 
+        fillOpacity: 0.6 
+    }).addTo(map);
+});
+
+map.on('locationerror', function(e) {
+    alert("Location access denied.");
+});
+function togglePopup() {
+    var popup = document.getElementById("popup");
+    var toggleButton = document.getElementById("toggle-popup");
+    if (popup.style.display === "none" || popup.style.display === "") {
+        popup.style.display = "block";
+        toggleButton.classList.remove("shake");  
+    } else {
+        popup.style.display = "none";
+        setTimeout(function() { 
+            toggleButton.classList.add("shake");  
+        }, 100);  
+    }
+}
+</script>
+</body>
+</html>
