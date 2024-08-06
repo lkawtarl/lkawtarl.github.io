@@ -545,10 +545,28 @@
                    overflow-y: auto;
                    -webkit-overflow-scrolling: touch; 
                 }
+                #openModal {
+    position: fixed;
+    left: 30%;
+    bottom: 0%;
+    padding: 10px 20px;
+    background-color: #013B72;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    width: auto
+}
 
         
                 #coords-container > div {
                     width: 100%; 
+                }
+                #frame { 
+                    width: 300px;
+                    height: 250px;
                 }
         
                 button, label, select, input {
@@ -676,7 +694,7 @@
         <div class="modal-content">
             <span id="closeModal" class="close-button-m">&times;</span>
             <h2 style="font-weight:bold; font-size: 30px;">Guide d'utilisation du géoportail de l'AUEJSB</h2>
-            <iframe src="https://www.youtube.com/embed/XMgV77MNjvA?rel=0" frameborder="0" width="600" height="350" allow="autoplay"></iframe>
+            <iframe class="frame" src="https://www.youtube.com/embed/XMgV77MNjvA?rel=0" frameborder="0" width="600" height="350" allow="autoplay"></iframe>
             <br>
             <a href="Guide géoportail de l'AUEJSB.pdf" download target="_blank" class="btn-m btn-primary">Télécharger la version PDF</a>
         </div>
