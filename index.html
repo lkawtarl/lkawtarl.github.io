@@ -1265,8 +1265,8 @@ document.getElementById('communeDropdown').addEventListener('change', function()
             'El Jadida' : [
                 { value: null, text: "En cours d'étude" }
             ],
-            'Sidi Smail' : [
-                { value: null, text: "En cours d'étude" }
+            'Sidi Smail': [
+                { value : '8',text: "PA du centre de la CT de Sidi Smail"}
             ],
             'Mogress' : [
                 { value: null, text: "En cours d'étude" }
@@ -1711,7 +1711,7 @@ function displayUrbanInfo() {
 
     var userPolygon = turf.polygon([processedCoords]);
     var hasCovered = false;
-    var codeDUValues = ['1', '17', '8', '60'];
+    var codeDUValues = ['1', '17','60'];
     var firstIntersection = true; 
     var sdauMessage = '';
 
